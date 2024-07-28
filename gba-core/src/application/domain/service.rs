@@ -1,1 +1,1 @@
-pub mod gameboy_service;
+pub mod gameboy_advance_service;

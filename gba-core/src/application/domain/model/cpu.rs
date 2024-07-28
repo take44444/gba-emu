@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+// ARM7TDMI
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Cpu {}
 

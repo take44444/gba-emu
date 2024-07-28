@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::application::{
-  domain::model::gameboy::Gameboy,
+  domain::model::gameboy_advance::GameboyAdvance,
   port::r#in::{
     emulate_cycle_usecase::EmulateCycleUseCase,
     joypad_input_usecase::JoypadInputUseCase,
@@ -11,41 +11,41 @@ use crate::application::{
 };
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct GameBoyService(Option<Gameboy>);
+pub struct GameboyAdvanceService(Option<GameboyAdvance>);
 
-impl GameBoyService {
+impl GameboyAdvanceService {
   pub fn new() -> Self {
     Self(None)
   }
 }
 
-impl PowerUseCase for GameBoyService {
+impl PowerUseCase for GameboyAdvanceService {
   fn power_on(&mut self) {
-    self.0 = Some(Gameboy::new());
+    self.0 = Some(GameboyAdvance::new());
   }
   fn power_off(&mut self) {
     self.0 = None;
   }
 }
 
-impl EmulateCycleUseCase for GameBoyService {
+impl EmulateCycleUseCase for GameboyAdvanceService {
   fn emulate_cycle(&mut self) {
-    if let Some(gameboy) = self.0.as_mut() {
-      gameboy.emulate_cycle();
+    if let Some(gameboy_advance) = self.0.as_mut() {
+      gameboy_advance.emulate_cycle();
     }
   }
 }
 
-impl JoypadInputUseCase for GameBoyService {
+impl JoypadInputUseCase for GameboyAdvanceService {
   fn button_down() {}
   fn button_up() {}
 }
 
-impl SerialUseCase for GameBoyService {
+impl SerialUseCase for GameboyAdvanceService {
   fn connect() {}
   fn receive() {}
 }
 
-impl SaveUseCase for GameBoyService {
+impl SaveUseCase for GameboyAdvanceService {
   fn save() {}
 }

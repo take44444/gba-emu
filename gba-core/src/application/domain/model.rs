@@ -1,4 +1,4 @@
-pub mod gameboy;
+pub mod gameboy_advance;
 pub mod cpu;
 pub mod peripherals;
 pub mod wait_state;

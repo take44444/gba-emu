@@ -6,12 +6,12 @@ use crate::application::domain::model::{
 };
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Gameboy {
+pub struct GameboyAdvance {
   cpu: Cpu,
   peripherals: Peripherals,
 }
 
-impl Gameboy {
+impl GameboyAdvance {
   pub fn new() -> Self {
     Self {
       cpu: Cpu {},
