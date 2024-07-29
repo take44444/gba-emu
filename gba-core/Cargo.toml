@@ -8,5 +8,6 @@ edition = "2021"
 name = "gba_core"
 
 [dependencies]
+bitutils = "3.0.1"
 bitfield = "0.16.1"
 serde = { version = "1.0.193", features = ["derive"] }

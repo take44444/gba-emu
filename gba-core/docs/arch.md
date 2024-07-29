@@ -41,7 +41,13 @@ Users of this crate have to do two things: uses the "Controllers" and implement 
     │       ├── gameboy_advance.rs
     │       ├── cpu.rs
     │       ├── cpu
+    │       │   ├── decode.rs
+    │       │   ├── execute.rs
+    │       │   ├── execute
+    │       │   │   ├── arm_execute.rs
+    │       │   │   └── thumb_execute.rs
     │       │   ├── instructions.rs
+    │       │   ├── pipeline.rs
     │       │   └── registers.rs
     │       ├── bus.rs
     │       ├── peripherals.rs

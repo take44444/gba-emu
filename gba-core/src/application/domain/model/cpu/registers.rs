@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 
 bitfield! {
-  #[derive(Clone, Serialize, Deserialize, Default)]
+  #[derive(Copy, Clone, Serialize, Deserialize, Default)]
   pub struct Cpsr(u32);
   pub m, _: 4, 0;
   pub t, _: 5;

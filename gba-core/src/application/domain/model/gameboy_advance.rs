@@ -20,7 +20,7 @@ impl GameboyAdvance {
   }
 
   pub fn emulate_cycle(&mut self) {
-    self.cpu.emulate_cycle(&self.peripherals);
+    self.cpu.emulate_cycle(&mut self.peripherals);
     self.peripherals.emulate_cycle();
   }
 }
