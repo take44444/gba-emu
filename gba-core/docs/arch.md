@@ -35,11 +35,15 @@ Users of this crate have to do two things: uses the "Controllers" and implement 
     ├── domain
     │   ├── service.rs
     │   ├── service
-    │   │   └── gameboy_service.rs
+    │   │   └── gameboy_advance_service.rs
     │   ├── model.rs
     │   └── model
-    │       ├── gameboy.rs
+    │       ├── gameboy_advance.rs
     │       ├── cpu.rs
+    │       ├── cpu
+    │       │   ├── instructions.rs
+    │       │   └── registers.rs
+    │       ├── bus.rs
     │       ├── peripherals.rs
     │       ├── wait_state.rs
     │       ├── ppu.rs
