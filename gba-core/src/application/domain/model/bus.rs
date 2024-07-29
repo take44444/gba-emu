@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::application::domain::model::peripherals::Peripherals;
 
-#[derive(Clone, Serialize, Deserialize, Default)]
+#[derive(Copy, Clone, Serialize, Deserialize, Default)]
 pub struct Bus {
   accessed: u32,
   size: u32,

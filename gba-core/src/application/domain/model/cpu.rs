@@ -24,7 +24,6 @@ pub struct Cpu {
   fetching: FetchingInstruction,
   decoding: DecodingInstruction,
   executing: ExecutingInstruction,
-  bus: Bus,
 }
 
 impl Cpu {
@@ -34,7 +33,6 @@ impl Cpu {
       fetching: FetchingInstruction::dummy(),
       decoding: DecodingInstruction::dummy(),
       executing: ExecutingInstruction::dummy(),
-      bus: Bus::default(),
     }
   }
   pub fn emulate_cycle(&mut self, peripherals: &Peripherals) {
@@ -51,34 +49,29 @@ impl Cpu {
     self.executing = ExecutingInstruction::dummy();
   }
   fn pipeline_next_stage(&mut self) {
+    self.fetching = FetchingInstruction::new(self.executing.bus, self.regs.r15);
     if self.executing.r15_status.unwrap() == R15Status::Changed {
       self.control_hazard();
     } else {
       self.executing = ExecutingInstruction::new(
-        self.decoding.addr, self.decoding.inst.unwrap()
+        self.decoding.bus, self.decoding.addr, self.decoding.inst.unwrap()
       );
       self.decoding = DecodingInstruction::new(
-        self.fetching.addr, self.fetching.opcode.unwrap()
+        self.fetching.bus, self.fetching.addr, self.fetching.opcode.unwrap()
       );
     }
-    self.fetching = FetchingInstruction::new(self.regs.r15);
   }
   fn pipeline_process(&mut self, peripherals: &Peripherals) {
     if !self.fetching.is_fetched() {
-      self.fetching.fetch(&self.bus, peripherals, self.regs.cpsr.t());
-      if self.fetching.is_fetched() {
-        self.regs.r15 += if let Opcode::Thumb(_) = self.fetching.opcode.unwrap() {
-          2
-        } else {
-          4
-        };
+      if self.fetching.fetch(peripherals, self.regs.cpsr.t()) {
+        self.regs.r15 += if self.regs.cpsr.t() { 2 } else { 4 };
       }
     }
     if !self.decoding.is_decoded() {
       self.decoding.decode();
     }
     if !self.executing.is_executed() {
-      self.executing.execute(&mut self.regs, &self.bus, peripherals);
+      self.executing.execute(&mut self.regs, peripherals);
     }
   }
 }

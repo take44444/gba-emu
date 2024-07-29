@@ -20,19 +20,22 @@ pub enum Opcode {
 
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct FetchingInstruction {
+  pub bus: Bus,
   pub addr: u32,
   pub opcode: Option<Opcode>,
 }
 
 impl FetchingInstruction {
-  pub fn new(addr: u32) -> Self {
+  pub fn new(bus: Bus, addr: u32) -> Self {
     Self {
+      bus,
       addr,
       opcode: None,
     }
   }
   pub fn dummy() -> Self {
     Self {
+      bus: Bus::default(),
       addr: 0,
       opcode: Some(Opcode::Arm(0)),
     }
@@ -40,15 +43,16 @@ impl FetchingInstruction {
   pub fn is_fetched(&self) -> bool {
     self.opcode.is_some()
   }
-  pub fn fetch(&mut self, bus: &Bus, peripherals: &Peripherals, is_thumb_mode: bool) {
+  pub fn fetch(&mut self, peripherals: &Peripherals, is_thumb_mode: bool) -> bool {
     assert!(!self.is_fetched());
     if is_thumb_mode {
-      self.opcode = bus.read16(self.addr, peripherals)
+      self.opcode = self.bus.read16(self.addr, peripherals)
                        .map(|opcode| Opcode::Thumb(opcode));
     } else {
-      self.opcode = bus.read32(self.addr, peripherals)
+      self.opcode = self.bus.read32(self.addr, peripherals)
                        .map(|opcode| Opcode::Arm(opcode));
     }
+    self.is_fetched()
   }
 }
 
@@ -59,14 +63,16 @@ pub enum DecodedInstruction {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct DecodingInstruction {
+  pub bus: Bus,
   pub addr: u32,
   opcode: Opcode,
   pub inst: Option<DecodedInstruction>,
 }
 
 impl DecodingInstruction {
-  pub fn new(addr: u32, opcode: Opcode) -> Self {
+  pub fn new(bus: Bus, addr: u32, opcode: Opcode) -> Self {
     Self {
+      bus,
       addr,
       opcode,
       inst: None,
@@ -74,6 +80,7 @@ impl DecodingInstruction {
   }
   pub fn dummy() -> Self {
     Self {
+      bus: Bus::default(),
       addr: 0,
       opcode: Opcode::Arm(0),
       inst: Some(DecodedInstruction::Dummy),
@@ -90,6 +97,7 @@ impl DecodingInstruction {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ExecutingInstruction {
+  pub bus: Bus,
   inst: DecodedInstruction,
   addr: u32,
   step: usize,
@@ -97,8 +105,9 @@ pub struct ExecutingInstruction {
 }
 
 impl ExecutingInstruction {
-  pub fn new(addr: u32, inst: DecodedInstruction) -> Self {
+  pub fn new(bus: Bus, addr: u32, inst: DecodedInstruction) -> Self {
     Self {
+      bus,
       inst,
       addr,
       step: 0,
@@ -107,6 +116,7 @@ impl ExecutingInstruction {
   }
   pub fn dummy() -> Self {
     Self {
+      bus: Bus::default(),
       inst: DecodedInstruction::Dummy,
       addr: 0,
       step: 0,
@@ -116,8 +126,9 @@ impl ExecutingInstruction {
   pub fn is_executed(&self) -> bool {
     self.r15_status.is_some()
   }
-  pub fn execute(&mut self, regs: &mut Registers, bus: &Bus, peripherals: &Peripherals) {
+  pub fn execute(&mut self, regs: &mut Registers, peripherals: &Peripherals) -> bool {
     // TODO
     self.r15_status = Some(R15Status::NotChanged);
+    self.is_executed()
   }
 }
