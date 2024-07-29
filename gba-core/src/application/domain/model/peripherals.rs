@@ -12,49 +12,17 @@ use crate::application::domain::model::{
   wait_state::WaitState
 };
 
-trait IO<T: Copy> {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<T>;
-  fn write(peripherals: &Peripherals, addr: u32, val: T) -> Option<()>;
-}
-
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Peripherals {
-  wait_state: WaitState,
-  ppu: Ppu,
-  sound_generator: SoundGenerator,
-  timer: Timer,
-  serial: Serial,
-  ewram: Ewram,
-  iwram: Iwram,
-  bios: Bios,
-  game_pak: GamePak,
-}
-
-impl IO<u8> for Peripherals {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<u8> {
-    None
-  }
-  fn write(peripherals: &Peripherals, addr: u32, val: u8) -> Option<()> {
-    None
-  }
-}
-
-impl IO<u16> for Peripherals {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<u16> {
-    None
-  }
-  fn write(peripherals: &Peripherals, addr: u32, val: u16) -> Option<()> {
-    None
-  }
-}
-
-impl IO<u32> for Peripherals {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<u32> {
-    None
-  }
-  fn write(peripherals: &Peripherals, addr: u32, val: u32) -> Option<()> {
-    None
-  }
+  pub wait_state: WaitState,
+  pub ppu: Ppu,
+  pub sound_generator: SoundGenerator,
+  pub timer: Timer,
+  pub serial: Serial,
+  pub ewram: Ewram,
+  pub iwram: Iwram,
+  pub bios: Bios,
+  pub game_pak: GamePak,
 }
 
 impl Peripherals {
