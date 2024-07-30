@@ -27,22 +27,19 @@ pub enum Opcode {
 
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct FetchingInstruction {
-  pub bus: Bus,
   pub addr: u32,
   pub opcode: Option<Opcode>,
 }
 
 impl FetchingInstruction {
-  pub fn new(bus: Bus, addr: u32) -> Self {
+  pub fn new(addr: u32) -> Self {
     Self {
-      bus,
       addr,
       opcode: None,
     }
   }
   pub fn dummy() -> Self {
     Self {
-      bus: Bus::default(),
       addr: 0,
       opcode: Some(Opcode::Arm(0)),
     }
@@ -50,13 +47,13 @@ impl FetchingInstruction {
   pub fn is_fetched(&self) -> bool {
     self.opcode.is_some()
   }
-  pub fn fetch(&mut self, peripherals: &Peripherals, is_thumb_mode: bool) -> bool {
+  pub fn fetch(&mut self, bus: &mut Bus, peripherals: &Peripherals, is_thumb_mode: bool) -> bool {
     assert!(!self.is_fetched());
     if is_thumb_mode {
-      self.opcode = self.bus.read16(self.addr, peripherals)
+      self.opcode = bus.read16(self.addr, peripherals)
                        .map(|opcode| Opcode::Thumb(opcode));
     } else {
-      self.opcode = self.bus.read32(self.addr, peripherals)
+      self.opcode = bus.read32(self.addr, peripherals)
                        .map(|opcode| Opcode::Arm(opcode));
     }
     self.is_fetched()
@@ -82,16 +79,14 @@ pub enum DecodedInstruction {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct DecodingInstruction {
-  pub bus: Bus,
   pub addr: u32,
   pub opcode: Opcode,
   pub inst: Option<DecodedInstruction>,
 }
 
 impl DecodingInstruction {
-  pub fn new(bus: Bus, addr: u32, opcode: Opcode) -> Self {
+  pub fn new(addr: u32, opcode: Opcode) -> Self {
     Self {
-      bus,
       addr,
       opcode,
       inst: None,
@@ -99,7 +94,6 @@ impl DecodingInstruction {
   }
   pub fn dummy() -> Self {
     Self {
-      bus: Bus::default(),
       addr: 0,
       opcode: Opcode::Arm(0),
       inst: Some(DecodedInstruction::Arm((Cond::EQ, DecodedArmInstruction::Dummy))),
@@ -112,7 +106,6 @@ impl DecodingInstruction {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ExecutingInstruction {
-  pub bus: Bus,
   pub inst: DecodedInstruction,
   pub addr: u32,
   pub step: usize,
@@ -120,9 +113,8 @@ pub struct ExecutingInstruction {
 }
 
 impl ExecutingInstruction {
-  pub fn new(bus: Bus, addr: u32, inst: DecodedInstruction) -> Self {
+  pub fn new(addr: u32, inst: DecodedInstruction) -> Self {
     Self {
-      bus,
       inst,
       addr,
       step: 0,
@@ -131,7 +123,6 @@ impl ExecutingInstruction {
   }
   pub fn dummy() -> Self {
     Self {
-      bus: Bus::default(),
       inst: DecodedInstruction::Arm((Cond::EQ, DecodedArmInstruction::Dummy)),
       addr: 0,
       step: 0,
@@ -149,21 +140,21 @@ impl Cpu {
     self.executing = ExecutingInstruction::dummy();
   }
   pub fn pipeline_next_stage(&mut self) {
-    self.fetching = FetchingInstruction::new(self.executing.bus, self.regs.r15);
+    self.fetching = FetchingInstruction::new(self.regs.r15);
     if self.executing.r15_status.unwrap() == R15Status::Changed {
       self.control_hazard();
     } else {
       self.executing = ExecutingInstruction::new(
-        self.decoding.bus, self.decoding.addr, self.decoding.inst.unwrap()
+        self.decoding.addr, self.decoding.inst.unwrap()
       );
       self.decoding = DecodingInstruction::new(
-        self.fetching.bus, self.fetching.addr, self.fetching.opcode.unwrap()
+        self.fetching.addr, self.fetching.opcode.unwrap()
       );
     }
   }
   pub fn pipeline_process(&mut self, peripherals: &mut Peripherals) {
     if !self.fetching.is_fetched() {
-      if self.fetching.fetch(peripherals, self.regs.cpsr.t()) {
+      if self.fetching.fetch(&mut self.bus, peripherals, self.regs.cpsr.t()) {
         self.regs.r15 += if self.regs.cpsr.t() { 2 } else { 4 };
       }
     }
@@ -171,7 +162,7 @@ impl Cpu {
       self.decoding.decode();
     }
     if !self.executing.is_executed() {
-      self.executing.execute(&mut self.regs, peripherals);
+      self.executing.execute(&mut self.regs, &mut self.bus, peripherals);
     }
   }
 }

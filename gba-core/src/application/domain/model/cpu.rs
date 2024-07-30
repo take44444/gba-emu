@@ -28,6 +28,7 @@ pub struct Cpu {
   fetching: FetchingInstruction,
   decoding: DecodingInstruction,
   executing: ExecutingInstruction,
+  bus: Bus,
 }
 
 impl Cpu {
@@ -37,6 +38,7 @@ impl Cpu {
       fetching: FetchingInstruction::dummy(),
       decoding: DecodingInstruction::dummy(),
       executing: ExecutingInstruction::dummy(),
+      bus: Bus::default(),
     }
   }
   pub fn emulate_cycle(&mut self, peripherals: &mut Peripherals) {

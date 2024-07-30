@@ -4,8 +4,9 @@ use crate::application::domain::model::peripherals::Peripherals;
 
 #[derive(Copy, Clone, Serialize, Deserialize, Default)]
 pub struct Bus {
-  accessed: u32,
-  size: u32,
+  addr: u32,
+  data_width: u32,
+  direction: bool,
   cycle: usize,
 }
 
@@ -34,11 +35,18 @@ impl Bus {
   pub fn write32(&self, addr: u32, val: u32, peripherals: &Peripherals) -> Option<()> {
     None
   }
-  fn access_type(&self, size: u32, addr: u32) -> AccessType {
-    if self.size == size && self.accessed + size == addr {
-      AccessType::S
-    } else {
-      AccessType::N
+  fn access_type(&mut self, direction: bool, data_width: u32, addr: u32) -> AccessType {
+    let mut ret = AccessType::N;
+    if data_width > 1 &&
+       (data_width == 4 || direction) &&
+       self.direction == direction &&
+       self.data_width == data_width &&
+       (self.addr == addr || self.addr + data_width == addr) {
+      ret = AccessType::S;
     }
+    self.direction = direction;
+    self.data_width = data_width;
+    self.addr = addr;
+    ret
   }
 }

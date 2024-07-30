@@ -1,4 +1,5 @@
 use crate::application::domain::model::{
+  bus::Bus,
   cpu::{
     pipeline::{
       DecodedArmInstruction,
@@ -16,12 +17,12 @@ mod arm_execute;
 mod thumb_execute;
 
 impl ExecutingInstruction {
-  pub fn execute(&mut self, regs: &mut Registers, peripherals: &mut Peripherals) -> bool {
+  pub fn execute(&mut self, regs: &mut Registers, bus: &mut Bus, peripherals: &mut Peripherals) -> bool {
     self.r15_status = match self.inst {
       DecodedInstruction::Arm((cond, inst)) => {
         if cond.check(regs.cpsr) {
           match inst {
-            DecodedArmInstruction::B(nn) => self.arm_b(regs, peripherals, nn),
+            DecodedArmInstruction::B(nn) => self.arm_b(regs, bus, peripherals, nn),
             DecodedArmInstruction::Dummy => Some(R15Status::NotChanged),
           }
         } else {
@@ -30,7 +31,7 @@ impl ExecutingInstruction {
       },
       DecodedInstruction::Thumb(inst) => {
         match inst {
-          DecodedThumbInstruction::B(nn) => self.thumb_b(regs, peripherals, nn),
+          DecodedThumbInstruction::B(nn) => self.thumb_b(regs, bus, peripherals, nn),
         }
       }
     };
