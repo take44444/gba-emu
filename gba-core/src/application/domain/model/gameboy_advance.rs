@@ -14,13 +14,13 @@ pub struct GameboyAdvance {
 impl GameboyAdvance {
   pub fn new() -> Self {
     Self {
-      cpu: Cpu {},
+      cpu: Cpu::new(),
       peripherals: Peripherals::new(),
     }
   }
 
   pub fn emulate_cycle(&mut self) {
-    self.cpu.emulate_cycle();
+    self.cpu.emulate_cycle(&mut self.peripherals);
     self.peripherals.emulate_cycle();
   }
 }
