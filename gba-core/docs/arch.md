@@ -51,7 +51,6 @@ Users of this crate have to do two things: uses the "Controllers" and implement 
     │       │   └── registers.rs
     │       ├── bus.rs
     │       ├── peripherals.rs
-    │       ├── wait_state.rs
     │       ├── ppu.rs
     │       ├── sound_generator.rs
     │       ├── timer.rs

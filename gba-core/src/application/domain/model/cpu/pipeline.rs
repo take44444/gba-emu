@@ -50,10 +50,10 @@ impl FetchingInstruction {
   pub fn fetch(&mut self, bus: &mut Bus, peripherals: &Peripherals, is_thumb_mode: bool) -> bool {
     assert!(!self.is_fetched());
     if is_thumb_mode {
-      self.opcode = bus.read16(self.addr, peripherals)
+      self.opcode = bus.read16('f', self.addr, peripherals)
                        .map(|opcode| Opcode::Thumb(opcode));
     } else {
-      self.opcode = bus.read32(self.addr, peripherals)
+      self.opcode = bus.read32('f', self.addr, peripherals)
                        .map(|opcode| Opcode::Arm(opcode));
     }
     self.is_fetched()

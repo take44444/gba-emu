@@ -17,7 +17,6 @@ use registers::Registers;
 
 mod decode;
 mod execute;
-mod instructions;
 mod pipeline;
 mod registers;
 

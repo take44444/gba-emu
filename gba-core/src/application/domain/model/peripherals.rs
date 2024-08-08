@@ -9,12 +9,35 @@ use crate::application::domain::model::{
   serial::Serial,
   sound_generator::SoundGenerator,
   timer::Timer,
-  wait_state::WaitState
 };
+
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct  SystemControl {
+  waitcnt: u32,
+  postflg: u32,
+  memcnt: u32,
+}
+
+impl SystemControl {
+  fn new() -> Self {
+    Self {
+      waitcnt: 0,
+      postflg: 0,
+      memcnt: 0x0D00_0020,
+    }
+  }
+  pub fn get_n_cycle(&self) -> usize {
+    0
+  }
+  pub fn get_s_cycle(&self) -> usize {
+    0
+  }
+}
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Peripherals {
-  pub wait_state: WaitState,
+  pub system_control: SystemControl,
   pub ppu: Ppu,
   pub sound_generator: SoundGenerator,
   pub timer: Timer,
@@ -28,7 +51,7 @@ pub struct Peripherals {
 impl Peripherals {
   pub fn new() -> Self {
     Self {
-      wait_state: WaitState {},
+      system_control: SystemControl::new(),
       ppu: Ppu {},
       sound_generator: SoundGenerator {},
       timer: Timer {},
