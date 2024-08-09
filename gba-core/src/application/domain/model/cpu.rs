@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::application::domain::model::{
   bus::Bus,
-  peripherals::Peripherals
+  mem::Mem
 };
 
 use pipeline::{
@@ -40,13 +40,13 @@ impl Cpu {
       bus: Bus::default(),
     }
   }
-  pub fn emulate_cycle(&mut self, peripherals: &mut Peripherals) {
+  pub fn emulate_cycle(&mut self, mem: &mut impl Mem) {
     if self.fetching.is_fetched() &&
        self.decoding.is_decoded() &&
        self.executing.is_executed()
     {
       self.pipeline_next_stage();
     }
-    self.pipeline_process(peripherals);
+    self.pipeline_process(mem);
   }
 }

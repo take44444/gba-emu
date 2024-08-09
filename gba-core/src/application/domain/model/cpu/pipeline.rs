@@ -1,16 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 use crate::application::domain::model::{
-  bus::Bus,
-  cpu::{
-    Cpu,
-    decode::Cond,
-    registers::{
+  bus::Bus, cpu::{
+    decode::Cond, registers::{
       Cpsr,
       Registers,
-    },
+    }, Cpu
   },
-  peripherals::Peripherals,
+  mem::Mem
 };
 
 #[derive(Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -47,13 +44,13 @@ impl FetchingInstruction {
   pub fn is_fetched(&self) -> bool {
     self.opcode.is_some()
   }
-  pub fn fetch(&mut self, bus: &mut Bus, peripherals: &Peripherals, is_thumb_mode: bool) -> bool {
+  pub fn fetch(&mut self, bus: &mut Bus, mem: &impl Mem, is_thumb_mode: bool) -> bool {
     assert!(!self.is_fetched());
     if is_thumb_mode {
-      self.opcode = bus.read16('f', self.addr, peripherals)
+      self.opcode = bus.read16('f', self.addr, mem)
                        .map(|opcode| Opcode::Thumb(opcode));
     } else {
-      self.opcode = bus.read32('f', self.addr, peripherals)
+      self.opcode = bus.read32('f', self.addr, mem)
                        .map(|opcode| Opcode::Arm(opcode));
     }
     self.is_fetched()
@@ -152,9 +149,9 @@ impl Cpu {
       );
     }
   }
-  pub fn pipeline_process(&mut self, peripherals: &mut Peripherals) {
+  pub fn pipeline_process(&mut self, mem: &mut impl Mem) {
     if !self.fetching.is_fetched() {
-      if self.fetching.fetch(&mut self.bus, peripherals, self.regs.cpsr.t()) {
+      if self.fetching.fetch(&mut self.bus, mem, self.regs.cpsr.t()) {
         self.regs.r15 += if self.regs.cpsr.t() { 2 } else { 4 };
       }
     }
@@ -162,7 +159,7 @@ impl Cpu {
       self.decoding.decode();
     }
     if !self.executing.is_executed() {
-      self.executing.execute(&mut self.regs, &mut self.bus, peripherals);
+      self.executing.execute(&mut self.regs, &mut self.bus, mem);
     }
   }
 }

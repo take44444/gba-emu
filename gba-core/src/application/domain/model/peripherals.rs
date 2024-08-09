@@ -11,6 +11,8 @@ use crate::application::domain::model::{
   timer::Timer,
 };
 
+use super::mem::Mem;
+
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct  SystemControl {
@@ -46,6 +48,27 @@ pub struct Peripherals {
   pub iwram: Iwram,
   pub bios: Bios,
   pub game_pak: GamePak,
+}
+
+impl Mem for Peripherals {
+  fn read8(&self, addr: u32) -> u8 {
+    0
+  }
+  fn write8(&mut self, addr: u32, val: u8) {
+    ()
+  }
+  fn read16(&self, addr: u32) -> u16 {
+    0
+  }
+  fn write16(&mut self, addr: u32, val: u16) {
+    ()
+  }
+  fn read32(&self, addr: u32) -> u32 {
+    0
+  }
+  fn write32(&mut self, addr: u32, val: u32) {
+    ()
+  }
 }
 
 impl Peripherals {
