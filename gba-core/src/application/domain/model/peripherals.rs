@@ -9,58 +9,72 @@ use crate::application::domain::model::{
   serial::Serial,
   sound_generator::SoundGenerator,
   timer::Timer,
-  wait_state::WaitState
 };
 
-trait IO<T: Copy> {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<T>;
-  fn write(peripherals: &Peripherals, addr: u32, val: T) -> Option<()>;
+use super::mem::Mem;
+
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct  SystemControl {
+  waitcnt: u32,
+  postflg: u32,
+  memcnt: u32,
+}
+
+impl SystemControl {
+  fn new() -> Self {
+    Self {
+      waitcnt: 0,
+      postflg: 0,
+      memcnt: 0x0D00_0020,
+    }
+  }
+  pub fn get_n_cycle(&self) -> usize {
+    0
+  }
+  pub fn get_s_cycle(&self) -> usize {
+    0
+  }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Peripherals {
-  wait_state: WaitState,
-  ppu: Ppu,
-  sound_generator: SoundGenerator,
-  timer: Timer,
-  serial: Serial,
-  ewram: Ewram,
-  iwram: Iwram,
-  bios: Bios,
-  game_pak: GamePak,
+  pub system_control: SystemControl,
+  pub ppu: Ppu,
+  pub sound_generator: SoundGenerator,
+  pub timer: Timer,
+  pub serial: Serial,
+  pub ewram: Ewram,
+  pub iwram: Iwram,
+  pub bios: Bios,
+  pub game_pak: GamePak,
 }
 
-impl IO<u8> for Peripherals {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<u8> {
-    None
+impl Mem for Peripherals {
+  fn read8(&self, addr: u32) -> u8 {
+    0
   }
-  fn write(peripherals: &Peripherals, addr: u32, val: u8) -> Option<()> {
-    None
+  fn write8(&mut self, addr: u32, val: u8) {
+    ()
   }
-}
-
-impl IO<u16> for Peripherals {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<u16> {
-    None
+  fn read16(&self, addr: u32) -> u16 {
+    0
   }
-  fn write(peripherals: &Peripherals, addr: u32, val: u16) -> Option<()> {
-    None
+  fn write16(&mut self, addr: u32, val: u16) {
+    ()
   }
-}
-
-impl IO<u32> for Peripherals {
-  fn read(peripherals: &Peripherals, addr: u32) -> Option<u32> {
-    None
+  fn read32(&self, addr: u32) -> u32 {
+    0
   }
-  fn write(peripherals: &Peripherals, addr: u32, val: u32) -> Option<()> {
-    None
+  fn write32(&mut self, addr: u32, val: u32) {
+    ()
   }
 }
 
 impl Peripherals {
   pub fn new() -> Self {
     Self {
-      wait_state: WaitState {},
+      system_control: SystemControl::new(),
       ppu: Ppu {},
       sound_generator: SoundGenerator {},
       timer: Timer {},

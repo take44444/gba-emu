@@ -1,7 +1,8 @@
 pub mod gameboy_advance;
 pub mod cpu;
 pub mod peripherals;
-pub mod wait_state;
+pub mod bus;
+pub mod mem;
 pub mod ppu;
 pub mod sound_generator;
 pub mod timer;
